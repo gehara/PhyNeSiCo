@@ -12,7 +12,6 @@ Imports:  ape,
           phangorn,
           e1071,
           msm
-          
 Description: PhyNeSiCo simulates species trees with bifurcation and reticulation.
 License: GPL (>= 2)
 URL: http://www.marcelogehara.org/
