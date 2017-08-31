@@ -2,7 +2,17 @@ library(gbm)
 library(caret)
 library(pROC)
 library(abc)
-setwd("~/Github/Networksimulator/R")
+library(RPANDA)
+library(phybase)
+library(phyclust)
+library(phangorn)
+library(PipeMaster)
+library(ape)
+library(e1071)
+library(abc)
+library(msm)
+
+setwd("~/Github/PhyNeSiCo/R")
 source("network.sim.R")
 
 ######### observed distance

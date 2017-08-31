@@ -10,7 +10,6 @@ Imports:  ape,
           phybase,
           phyclust,
           phangorn,
-          PipeMaster,
           e1071,
           msm
           
