@@ -17,7 +17,6 @@ sim.sp.tree<-function(tree,
                       gen.time,
                       time.modif,
                       coaltrees,
-                      spectral,
                       distance,
                       time.scalar=1)
 {
@@ -92,10 +91,9 @@ sim.sp.tree<-function(tree,
     # Sample ancestral Nes (truncatedd 100 individuals)
     anc.Nes<-rtnorm(nrow(ej),Ne.mean,Ne.SD,lower=100)
     if(migration==T){
-      Mig.prop<-runif(1,mig[1],mig[2])
-      ntrees.mig<-floor(ntrees*Mig.prop)
+      Mig.rate<-runif(1,mig[1],mig[2])
       }else{
-        Mig.prop<-0
+        Mig.rate<-0
       }
     if(admixture==T){
       Admix.prob.minor<-runif(1,hib.priors[4],hib.priors[5])
@@ -103,7 +101,6 @@ sim.sp.tree<-function(tree,
       Admix.prob.minor<-0
     }
     ### simulate n-trees
-    count<-0
     for(i in 1:ntrees){
       master.theta<-0
       while(master.theta<0.000001){
@@ -149,15 +146,8 @@ sim.sp.tree<-function(tree,
         ms.string[[6]]<-paste(es,ejh)
       }
       if(migration==T){
-        count<-count+1
-        if(count>ntrees.mig){
-          Mig<-0
-        }else{
-          Mig=1
-        }
-        #Mig<-rtnorm(1,Mig.mean,Mig.SD,0)
         mig.time<-((hib.priors[1]/gen.time)*time.mod)/(4*master.Ne)
-        em<-paste("-em",mig.time,max(minor.sister),max(hib.clade),Mig)
+        em<-paste("-em",mig.time,max(minor.sister),max(hib.clade),Mig.rate)
         ms.string[[6]]<-em
       }
       }
@@ -191,23 +181,12 @@ sim.sp.tree<-function(tree,
           sim.t<-rbind(sim.t,as.vector(d))
         }
        
-        if(spectral==T){
-          upgma.tree<-upgma(d)
-          upgma.tree$edge.length<-upgma.tree$edge.length*1000
-          trees[[i]]<-upgma.tree
-        }
         
       }
       rm(fas)
     }
     
-    if(spectral==T){
-      eigen<-get.panda(trees,method="standard")
-      sim.t<-cbind(eigen$principal_eigenvalue,eigen$asymmetry,eigen$eigenvalues)
-      if(nrow(sim.t)>1){
-        sim<-c(apply(sim.t,2,mean),apply(sim.t,2,var),apply(sim.t,2,kurtosis),apply(sim.t,2,skewness))
-      } else {sim<-t(sim.t)} 
-    }
+    
     if(distance==T){
       if(segsites==F){
         stop("you need to have segsites=TRUE to get the distance")} else {
@@ -217,6 +196,7 @@ sim.sp.tree<-function(tree,
             colnames(sim.t)<-nam
             sim<-c(apply(sim.t,2,mean))#,apply(sim.t,2,var),apply(sim.t,2,kurtosis),apply(sim.t,2,skewness))
             mean<-paste("mean",names(sim[1:length(nam)]),sep="_")
+            
             #var<-paste("var",names(sim[(length(nam)+1):(2*length(nam))]),sep="_")
             #kur<-paste("kur",names(sim[((2*length(nam))+1):(3*length(nam))]),sep="_")
             #skew<-paste("skew",names(sim[((3*length(nam))+1):(4*length(nam))]),sep="_")
@@ -229,10 +209,11 @@ sim.sp.tree<-function(tree,
         }
     }
     #print(i)
-    sim<-cbind(time.mod,Ne.mean,Ne.SD,mi.mean,mi.SD,Mig.prop,Admix.prob.minor,t(sim))
+    sim<-cbind(time.mod,Ne.mean,Ne.SD,mi.mean,mi.SD,Mig.rate,Admix.prob.minor,t(sim))
     simulated<-rbind(simulated,sim)
-    rm(time.mod,Ne.mean,Ne.SD,mi.mean,mi.SD,Mig.prop,Admix.prob.minor,sim)
+    rm(time.mod,Ne.mean,Ne.SD,mi.mean,mi.SD,Mig.rate,Admix.prob.minor,sim,sim.t)
     print(j)
+    gc()
   }
   return(simulated)
 }
