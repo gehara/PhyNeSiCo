@@ -73,12 +73,12 @@ sim.sp.tree<-function(tree,
     # put the original dates back on time strings
     ej[,2]<-nodes
     en[,2]<-nodes
-    # rescale to coalescent (Ne proportion)
+    # rescale to coalescent (Ne proportion). Rescale to number of generations instead of years
     ej[,2]<-as.numeric(ej[,2])/(4*master.Ne)/gen.time
-    en[,2]<-as.numeric(ej[,2])#*1.01
+    en[,2]<-as.numeric(ej[,2])
     # sample time modifier
     time.mod<-runif(1,time.modif[1],time.modif[2])
-    # modify time
+    # modify time according to sampled time.mod
     ej[,2]<-as.numeric(ej[,2])*time.mod
     en[,2]<-as.numeric(en[,2])*time.mod
     
@@ -86,15 +86,17 @@ sim.sp.tree<-function(tree,
     Ne.mean<-runif(1,Ne.prior[1],Ne.prior[2])
     # sample Ne Standart deviation
     Ne.SD<-Ne.mean*runif(1,0.1,1)
-    # sample contemporary Nes (truncated in 100 individuals)
+    # sample contemporary Nes (truncated to min 100 individuals)
     Nes<-rtnorm((nrow(ej)+1),Ne.mean,Ne.SD,lower=100)
-    # Sample ancestral Nes (truncatedd 100 individuals)
+    # Sample ancestral Nes (truncated to min 100 individuals)
     anc.Nes<-rtnorm(nrow(ej),Ne.mean,Ne.SD,lower=100)
+    # Sample migration rate
     if(migration==T){
       Mig.rate<-runif(1,mig[1],mig[2])
       }else{
         Mig.rate<-0
       }
+    # Sample admixture proportions
     if(admixture==T){
       Admix.prob.minor<-runif(1,hib.priors[4],hib.priors[5])
     }else{
@@ -104,10 +106,10 @@ sim.sp.tree<-function(tree,
     for(i in 1:ntrees){
       master.theta<-0
       while(master.theta<0.000001){
-      # sample mutation rate
+      # sample mutation rate per site per year
       mi.mean<-runif(1,mi[1],mi[2])
       mi.SD<-mi.mean*runif(1,0.1,1)
-      #mi.SD<-mi.mean*mi.SD
+      
       rate<-rnorm(1,mi.mean,mi.SD)
       while(rate<=0){
         rate<-rnorm(1,mi.mean,mi.SD)
